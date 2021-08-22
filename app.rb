@@ -1,16 +1,18 @@
 class Board
-  attr_reader :code
+  attr_reader :code, :n, :l
 
   def initialize
     @code = []
+    @n = 0
+    @l = 0
   end
 
   def generate_code
     i = 5
     while i > 0
-        num = rand(1..5)
-        @code.push(num)
-        i -= 1
+      num = rand(1..5)
+      @code.push(num)
+      i -= 1
     end
     p @code
   end
@@ -19,20 +21,70 @@ class Board
     puts 'Enter your guess (5 digits):'
     num = gets.chomp
     if num.length == 5
-        num = num.split('')
-        num.map!(&:to_i)
-        check(num)
+      num = num.split('')
+      num.map!(&:to_i)
+      check(num)
     else
-        puts 'improper length'
+      puts 'Improper number of digits, please try again.'
     end
   end
 
   def check(num)
     if num == @code
-        puts 'You win!'
+      puts 'You win!'
     else
-        puts 'Try again'
+      @n = compare(num)
+      @l = location(num)
     end
+    p "N:#{@n}"
+    p "L:#{@l}"
+  end
+
+  def location(array)
+    l = 0
+    array.zip(@code).map { |a, b| a == b ? l += 1 : 'Not a match' }
+    l
+  end
+
+  def compare(array)
+    arr_nums = array.tally
+    arr2_nums = @code.tally
+
+    comp = arr_nums.each.map { |e| e }.sort
+    comp2 = arr2_nums.each.map { |e| e }.sort
+
+    i = 0
+    n = 0
+    smaller_arr = []
+
+    if comp.length > comp2.length
+      smaller_arr = comp2
+    else
+      smaller_arr = comp
+    end
+
+    p smaller_arr
+
+    while i < smaller_arr.length
+
+      a1 = comp[i][0]
+      a2 = comp2[i][0]
+      if a1 == a2
+        b1 = comp[i][1]
+        b2 = comp2[i][1]
+        if b1 == b2
+          n += 1
+        elsif b1 > b2
+          n += b2
+        else
+          n += b1
+        end
+      else
+        n
+      end
+      i += 1
+    end
+    n
   end
 
   def play_game
@@ -61,7 +113,7 @@ because 2 were in the correct location as well (the 1 and the 3).'
       p 'Ok let\'s go!'
       generate_code
     else
-      return
+      'Error. Please try again.'
     end
   end
 end

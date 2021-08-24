@@ -5,48 +5,51 @@ class Board
     @code = []
     @n = 0
     @l = 0
-    @guesses = 12
+    @guesses = 11
   end
 
   def generate_code
     i = 5
-    while i > 0
+    while i.positive?
       num = rand(1..5)
       @code.push(num)
       i -= 1
     end
+    guess
   end
 
   def guess
-    if @guesses.zero?
-      puts "Sorry you lose. The code was #{@code}."
-    else
-      while @guesses.positive?
-        puts 'Enter your guess (5 digits):'
-        num = gets.chomp
-        unless num.length == 5
-          puts 'Improper number of digits, please try again.'
-        else
-          num = num.split('')
-          num.map!(&:to_i)
-          check(num)
-          @guesses -= 1
-          puts "You have #{@guesses} guesses remaining."
+    while @guesses <= 12
+      puts 'Enter your guess (5 digits):'
+      num = gets.chomp
+      unless num.length == 5
+        puts 'Improper number of digits, please try again.'
+      else
+        num = num.split('')
+        num.map!(&:to_i)
+        check(num)
+        @guesses += 1
+        if @guesses > 12
+          puts "Sorry you lose. The code was #{@code}."
+          return
         end
       end
     end
   end
 
   def check(num)
+    puts "You entered: #{num}"
     if num == @code
-      puts 'You win!'
+      puts "You win! It took you #{@guesses} tries."
+      @guesses = 13
+      return
     else
       @n = compare(num)
       @l = location(num)
     end
-    puts "You entered: #{num}"
     puts "Numbers Correct: #{@n}"
     puts "Locations Correct: #{@l}"
+    puts "You have #{12 - @guesses} guesses remaining."
   end
 
   def location(array)
@@ -56,38 +59,19 @@ class Board
   end
 
   def compare(array)
-    arr_nums = array.tally
-    arr2_nums = @code.tally
-
-    comp = arr_nums.each.map { |e| e }.sort
-    comp2 = arr2_nums.each.map { |e| e }.sort
-
-    i = 0
+    i = 1
     n = 0
-    smaller_arr = []
-
-    if comp.length > comp2.length
-      smaller_arr = comp2
-    else
-      smaller_arr = comp
-    end
-
-    while i < smaller_arr.length
-
-      a1 = comp[i][0]
-      a2 = comp2[i][0]
-      if a1 == a2
-        b1 = comp[i][1]
-        b2 = comp2[i][1]
-        if b1 == b2
-          n += b1
-        elsif b1 > b2
-          n += b2
+    while i <= 5
+      a = array.count(i)
+      b = @code.count(i)
+      unless a.zero? && b.zero?
+        if a == b
+          n += a
+        elsif a > b
+          n += b
         else
-          n += b1
+          n += a
         end
-      else
-        n
       end
       i += 1
     end
@@ -126,5 +110,4 @@ because 2 were in the correct location as well (the 1 and the 3).'
 end
 
 game = Board.new
-game.generate_code
-game.guess
+game.play_game

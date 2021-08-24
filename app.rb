@@ -1,10 +1,11 @@
 class Board
-  attr_reader :code, :n, :l
+  attr_reader :code, :n, :l, :guesses
 
   def initialize
     @code = []
     @n = 0
     @l = 0
+    @guesses = 12
   end
 
   def generate_code
@@ -14,18 +15,25 @@ class Board
       @code.push(num)
       i -= 1
     end
-    p @code
   end
 
   def guess
-    puts 'Enter your guess (5 digits):'
-    num = gets.chomp
-    if num.length == 5
-      num = num.split('')
-      num.map!(&:to_i)
-      check(num)
+    if @guesses.zero?
+      puts "Sorry you lose. The code was #{@code}."
     else
-      puts 'Improper number of digits, please try again.'
+      while @guesses.positive?
+        puts 'Enter your guess (5 digits):'
+        num = gets.chomp
+        unless num.length == 5
+          puts 'Improper number of digits, please try again.'
+        else
+          num = num.split('')
+          num.map!(&:to_i)
+          check(num)
+          @guesses -= 1
+          puts "You have #{@guesses} guesses remaining."
+        end
+      end
     end
   end
 
@@ -36,8 +44,9 @@ class Board
       @n = compare(num)
       @l = location(num)
     end
-    p "N:#{@n}"
-    p "L:#{@l}"
+    puts "You entered: #{num}"
+    puts "Numbers Correct: #{@n}"
+    puts "Locations Correct: #{@l}"
   end
 
   def location(array)
@@ -63,8 +72,6 @@ class Board
       smaller_arr = comp
     end
 
-    p smaller_arr
-
     while i < smaller_arr.length
 
       a1 = comp[i][0]
@@ -73,7 +80,7 @@ class Board
         b1 = comp[i][1]
         b2 = comp2[i][1]
         if b1 == b2
-          n += 1
+          n += b1
         elsif b1 > b2
           n += b2
         else
@@ -88,15 +95,15 @@ class Board
   end
 
   def play_game
-    puts 'Welcome to Mastermind!'
+    puts "Welcome to Mastermind!/n"
     puts ''
     puts 'You have 12 tries to break a 5 digit code.'
     puts ''
     puts 'If the numbers you selected are correct, the amount of correct
-numbers will be displayed to the right of the N: column.'
+numbers will be displayed to the right of the Number Correct: column.'
     puts ''
     puts 'If you have selected the correct location for those numbers, it will
-be displayed to the right of the L: column.'
+be displayed to the right of the Locations Correct: column.'
     puts ''
     puts 'For example, let\'s say the secret code is 1, 1, 3, 2, 5'
     puts ''

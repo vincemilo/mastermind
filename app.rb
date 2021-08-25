@@ -5,7 +5,7 @@ class Board
     @code = []
     @n = 0
     @l = 0
-    @guesses = 11
+    @guesses = 1
   end
 
   def generate_code
@@ -15,6 +15,7 @@ class Board
       @code.push(num)
       i -= 1
     end
+    p @code
     guess
   end
 
@@ -22,24 +23,23 @@ class Board
     while @guesses <= 12
       puts 'Enter your guess (5 digits):'
       num = gets.chomp
-      unless num.length == 5
-        puts 'Improper number of digits, please try again.'
-      else
+      if num.length == 5
         num = num.split('')
         num.map!(&:to_i)
         check(num)
         @guesses += 1
-        if @guesses > 12
-          puts "Sorry you lose. The code was #{@code}."
-          return
-        end
+      else
+        puts 'Improper number of digits, please try again.'
       end
     end
   end
 
   def check(num)
     puts "You entered: #{num}"
-    if num == @code
+    if @guesses > 12
+      puts "Sorry you lose. The code was #{@code}."
+      return
+    elsif num == @code
       puts "You win! It took you #{@guesses} tries."
       @guesses = 13
       return
@@ -47,6 +47,10 @@ class Board
       @n = compare(num)
       @l = location(num)
     end
+    status
+  end
+
+  def status
     puts "Numbers Correct: #{@n}"
     puts "Locations Correct: #{@l}"
     puts "You have #{12 - @guesses} guesses remaining."
@@ -65,13 +69,13 @@ class Board
       a = array.count(i)
       b = @code.count(i)
       unless a.zero? && b.zero?
-        if a == b
-          n += a
-        elsif a > b
-          n += b
-        else
-          n += a
-        end
+        n += if a == b
+               a
+             elsif a > b
+               a
+             else
+               b
+             end
       end
       i += 1
     end
@@ -79,7 +83,7 @@ class Board
   end
 
   def play_game
-    puts "Welcome to Mastermind!/n"
+    puts 'Welcome to Mastermind!'
     puts ''
     puts 'You have 12 tries to break a 5 digit code.'
     puts ''
@@ -92,16 +96,17 @@ be displayed to the right of the Locations Correct: column.'
     puts 'For example, let\'s say the secret code is 1, 1, 3, 2, 5'
     puts ''
     puts 'If you were to put in 1, 5, 3, 4, 3 as your guess, you would get a
-display of N: 3, because 3 numbers you guessed were correct (1, 5, 3) and L: 2
-because 2 were in the correct location as well (the 1 and the 3).'
+display of Numbers Correct: 3, because 3 numbers you guessed were correct
+(1, 5, 3) and Locations Correct: 2 because 2 were in the correct location as
+well (the 1 and the 3).'
     puts ''
     puts 'The game is won if you guess the correct location for all 5 numbers
-(L: 5) before the end of 12 turns. Good luck!'
+(Locations Correct: 5) before the end of 12 turns. Good luck!'
     puts ''
     puts 'Are you ready to play? (Enter y to continue or any other key to quit)'
     go = gets.chomp
     if go == 'y'
-      p 'Ok let\'s go!'
+      puts 'Good luck!'
       generate_code
     else
       'Error. Please try again.'

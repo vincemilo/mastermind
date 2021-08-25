@@ -5,13 +5,13 @@ class Board
     @code = []
     @n = 0
     @l = 0
-    @guesses = 1
+    @guesses = 10
   end
 
   def generate_code
-    i = 5
+    i = 4
     while i.positive?
-      num = rand(1..5)
+      num = rand(1..4)
       @code.push(num)
       i -= 1
     end
@@ -20,14 +20,14 @@ class Board
   end
 
   def guess
-    while @guesses <= 12
-      puts 'Enter your guess (5 digits):'
+    while @guesses < 12
+      puts 'Enter your guess (4 digits):'
       num = gets.chomp
-      if num.length == 5
+      if num.length == 4
         num = num.split('')
         num.map!(&:to_i)
-        check(num)
         @guesses += 1
+        check(num)
       else
         puts 'Improper number of digits, please try again.'
       end
@@ -36,7 +36,7 @@ class Board
 
   def check(num)
     puts "You entered: #{num}"
-    if @guesses > 12
+    if @guesses >= 12
       puts "Sorry you lose. The code was #{@code}."
       return
     elsif num == @code
@@ -65,16 +65,16 @@ class Board
   def compare(array)
     i = 1
     n = 0
-    while i <= 5
+    while i <= 4
       a = array.count(i)
       b = @code.count(i)
       unless a.zero? && b.zero?
         n += if a == b
                a
              elsif a > b
-               a
-             else
                b
+             else
+               a
              end
       end
       i += 1
@@ -85,7 +85,7 @@ class Board
   def play_game
     puts 'Welcome to Mastermind!'
     puts ''
-    puts 'You have 12 tries to break a 5 digit code.'
+    puts 'You have 12 tries to break a 4 digit code.'
     puts ''
     puts 'If the numbers you selected are correct, the amount of correct
 numbers will be displayed to the right of the Number Correct: column.'
@@ -93,15 +93,15 @@ numbers will be displayed to the right of the Number Correct: column.'
     puts 'If you have selected the correct location for those numbers, it will
 be displayed to the right of the Locations Correct: column.'
     puts ''
-    puts 'For example, let\'s say the secret code is 1, 1, 3, 2, 5'
+    puts 'For example, let\'s say the secret code is 1, 1, 3, 5'
     puts ''
-    puts 'If you were to put in 1, 5, 3, 4, 3 as your guess, you would get a
+    puts 'If you were to put in 1, 5, 3, 3 as your guess, you would get a
 display of Numbers Correct: 3, because 3 numbers you guessed were correct
 (1, 5, 3) and Locations Correct: 2 because 2 were in the correct location as
 well (the 1 and the 3).'
     puts ''
-    puts 'The game is won if you guess the correct location for all 5 numbers
-(Locations Correct: 5) before the end of 12 turns. Good luck!'
+    puts 'The game is won if you guess the correct location for all 4 numbers
+(Locations Correct: 4) before the end of 12 turns. Good luck!'
     puts ''
     puts 'Are you ready to play? (Enter y to continue or any other key to quit)'
     go = gets.chomp

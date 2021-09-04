@@ -1,22 +1,87 @@
 class Board
-  attr_reader :code, :n, :l, :guesses
+  attr_reader :code, :n, :l, :guesses, :set
 
   def initialize
-    @code = []
+    @code = [4, 5, 1, 2]
     @n = 0
     @l = 0
-    @guesses = 10
+    @guesses = 1
+    @set = (1111..6666).to_a
   end
 
   def generate_code
     i = 4
     while i.positive?
-      num = rand(1..4)
+      num = rand(1..6)
       @code.push(num)
       i -= 1
     end
     p @code
-    guess
+    # guess
+  end
+
+  def computer_guess(guess)
+    remove_nums
+    check(guess)
+    if @n.zero?
+      puts 'No nums'
+      i = 1
+      while i < 4
+        remove_nums(guess[i].to_s)
+        i += 1
+      end
+    elsif @n == 1
+      match_found(guess)
+    elsif @n == 2
+      # h = guess.tally
+      i = @set.length - 1
+      # i = 5
+      j = 0
+      perms = guess.permutation(@n).to_a
+      unique_perms = perms.uniq.tally
+      p @set.length
+      p unique_perms
+      while j < unique_perms.length
+        while i >= 0
+          conv = @set[i].to_s.split('').map(&:to_i)
+          unique_set = conv.permutation(@n).to_a.tally
+          @set.delete_at(i) unless unique_perms.any? { |k, _| unique_set.key? k }
+          i -= 1
+        end
+        j += 1
+      end
+      # p tally
+    end
+    #p h
+    p @set.length
+  end
+
+  def match_found(guess)
+    h = guess.tally
+    i = @set.length - 1
+    j = 0
+    while j < h.keys.length
+      while i >= 0
+        conv = @set[i].to_s.split('')
+        count = conv.count(h.keys[j].to_s)
+        @set.delete_at(i) unless count == @n
+        i -= 1
+      end
+      j += 1
+    end
+  end
+
+  def remove_nums(num = '0')
+    i = @set.length - 1
+    while i >= 0
+      conv = @set[i].to_s.split('')
+      if conv.any?(num)
+        # puts "Deleted #{@set[i]}"
+        @set.delete_at(i)
+      end
+      i -= 1
+    end
+    # @set.each { |e| p e }
   end
 
   def guess
@@ -69,9 +134,7 @@ class Board
       a = array.count(i)
       b = @code.count(i)
       unless a.zero? && b.zero?
-        n += if a == b
-               a
-             elsif a > b
+        n += if a > b
                b
              else
                a
@@ -87,17 +150,17 @@ class Board
     puts ''
     puts 'You have 12 tries to break a 4 digit code.'
     puts ''
-    puts 'If the numbers you selected are correct, the amount of correct
+    puts 'Choose numbers between 1 - 6. If the numbers you selected are correct,the amount of correct
 numbers will be displayed to the right of the Number Correct: column.'
     puts ''
     puts 'If you have selected the correct location for those numbers, it will
 be displayed to the right of the Locations Correct: column.'
     puts ''
-    puts 'For example, let\'s say the secret code is 1, 1, 3, 5'
+    puts 'For example, let\'s say the secret code is 1, 3, 3, 6'
     puts ''
-    puts 'If you were to put in 1, 5, 3, 3 as your guess, you would get a
+    puts 'If you were to put in 1, 6, 3, 2 as your guess, you would get a
 display of Numbers Correct: 3, because 3 numbers you guessed were correct
-(1, 5, 3) and Locations Correct: 2 because 2 were in the correct location as
+(1, 6, 3) and Locations Correct: 2 because 2 were in the correct location as
 well (the 1 and the 3).'
     puts ''
     puts 'The game is won if you guess the correct location for all 4 numbers
@@ -115,4 +178,6 @@ well (the 1 and the 3).'
 end
 
 game = Board.new
-game.play_game
+# game.play_game
+# game.generate_code
+game.computer_guess([1, 1, 1, 2])

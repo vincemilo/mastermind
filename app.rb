@@ -21,7 +21,7 @@ class Board
   end
 
   def computer_guess(guess)
-    remove_nums
+    remove_nums if @guesses == 1
     check(guess)
     if @n.zero?
       puts 'No nums'
@@ -31,32 +31,54 @@ class Board
         i += 1
       end
     elsif @n == 1
-      match_found(guess)
-    elsif @n == 2
-      # h = guess.tally
-      i = @set.length - 1
-      # i = 5
-      j = 0
-      perms = guess.permutation(@n).to_a
-      unique_perms = perms.uniq.tally
-      p @set.length
-      p unique_perms
-      while j < unique_perms.length
-        while i >= 0
-          conv = @set[i].to_s.split('').map(&:to_i)
-          unique_set = conv.permutation(@n).to_a.tally
-          @set.delete_at(i) unless unique_perms.any? { |k, _| unique_set.key? k }
-          i -= 1
-        end
-        j += 1
-      end
-      # p tally
+      match(guess)
+    else
+      matches(guess)
     end
-    #p h
     p @set.length
+    @guesses += 1
+    if @guesses >= 12
+      p @set
+      return
+    end
+    new_guess(guess)
   end
 
-  def match_found(guess)
+  def new_guess(guess)
+    i = @set.length - 1
+    while i >= 0
+      matches = 0
+      conv = @set[i].to_s.split('').map(&:to_i)
+      guess.zip(conv) { |a, b| a == b ? matches += 1 : 'Not a match' }
+      if @l.positive?
+        @set.delete_at(i) unless matches >= @l
+      else
+        @set.delete_at(i) if matches > 2
+      end
+      i -= 1
+    end
+    new_guess = @set[0].to_s.split('').map(&:to_i)
+    @set.delete_at(0)
+    computer_guess(new_guess)
+  end
+
+  def matches(guess)
+    i = @set.length - 1
+    j = 0
+    perms = guess.permutation(@n).to_a
+    unique_perms = perms.uniq.tally
+    while j < unique_perms.length
+      while i >= 0
+        conv = @set[i].to_s.split('').map(&:to_i)
+        unique_set = conv.permutation(@n).to_a.tally
+        @set.delete_at(i) unless unique_perms.any? { |k, _| unique_set.key? k }
+        i -= 1
+      end
+      j += 1
+    end
+  end
+
+  def match(guess)
     h = guess.tally
     i = @set.length - 1
     j = 0
@@ -100,6 +122,7 @@ class Board
   end
 
   def check(num)
+    p @code
     puts "You entered: #{num}"
     if @guesses >= 12
       puts "Sorry you lose. The code was #{@code}."
@@ -130,7 +153,7 @@ class Board
   def compare(array)
     i = 1
     n = 0
-    while i <= 4
+    while i <= 6
       a = array.count(i)
       b = @code.count(i)
       unless a.zero? && b.zero?
@@ -180,4 +203,5 @@ end
 game = Board.new
 # game.play_game
 # game.generate_code
-game.computer_guess([1, 1, 1, 2])
+game.computer_guess([1, 1, 2, 2])
+# game.check([4,1,2,1])

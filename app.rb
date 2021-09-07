@@ -1,12 +1,13 @@
 class Board
-  attr_reader :code, :n, :l, :guesses, :set
+  attr_reader :code, :n, :l, :guesses, :set, :human
 
   def initialize
-    @code = [4, 5, 1, 2]
+    @code = []
     @n = 0
     @l = 0
     @guesses = 1
     @set = (1111..6666).to_a
+    @human = true
   end
 
   def generate_code
@@ -16,31 +17,26 @@ class Board
       @code.push(num)
       i -= 1
     end
-    p @code
-    # guess
+    guess
   end
 
   def computer_guess(guess)
-    remove_nums if @guesses == 1
+    no_match if @guesses == 1
     check(guess)
     if @n.zero?
-      puts 'No nums'
       i = 1
       while i < 4
-        remove_nums(guess[i].to_s)
+        no_match(guess[i].to_s)
         i += 1
       end
-    elsif @n == 1
-      match(guess)
     else
-      matches(guess)
+      match(guess)
     end
-    p @set.length
     @guesses += 1
-    if @guesses >= 12
-      p @set
+    if @guesses >= 12 || @set.empty?
       return
     end
+
     new_guess(guess)
   end
 
@@ -50,11 +46,7 @@ class Board
       matches = 0
       conv = @set[i].to_s.split('').map(&:to_i)
       guess.zip(conv) { |a, b| a == b ? matches += 1 : 'Not a match' }
-      if @l.positive?
-        @set.delete_at(i) unless matches >= @l
-      else
-        @set.delete_at(i) if matches > 2
-      end
+      @set.delete_at(i) if matches > @l
       i -= 1
     end
     new_guess = @set[0].to_s.split('').map(&:to_i)
@@ -62,7 +54,7 @@ class Board
     computer_guess(new_guess)
   end
 
-  def matches(guess)
+  def match(guess)
     i = @set.length - 1
     j = 0
     perms = guess.permutation(@n).to_a
@@ -78,32 +70,15 @@ class Board
     end
   end
 
-  def match(guess)
-    h = guess.tally
-    i = @set.length - 1
-    j = 0
-    while j < h.keys.length
-      while i >= 0
-        conv = @set[i].to_s.split('')
-        count = conv.count(h.keys[j].to_s)
-        @set.delete_at(i) unless count == @n
-        i -= 1
-      end
-      j += 1
-    end
-  end
-
-  def remove_nums(num = '0')
+  def no_match(num = '0')
     i = @set.length - 1
     while i >= 0
       conv = @set[i].to_s.split('')
       if conv.any?(num)
-        # puts "Deleted #{@set[i]}"
         @set.delete_at(i)
       end
       i -= 1
     end
-    # @set.each { |e| p e }
   end
 
   def guess
@@ -122,13 +97,20 @@ class Board
   end
 
   def check(num)
-    p @code
-    puts "You entered: #{num}"
+    if @human == true
+      puts "You entered: #{num}"
+    else
+      puts "Computer enters: #{num}"
+    end
     if @guesses >= 12
       puts "Sorry you lose. The code was #{@code}."
       return
     elsif num == @code
-      puts "You win! It took you #{@guesses} tries."
+      if @human == true
+        puts "You win! It took you #{@guesses} tries."
+      else
+        puts "The Computer wins! It took them #{@guesses} tries."
+      end
       @guesses = 13
       return
     else
@@ -187,21 +169,33 @@ display of Numbers Correct: 3, because 3 numbers you guessed were correct
 well (the 1 and the 3).'
     puts ''
     puts 'The game is won if you guess the correct location for all 4 numbers
-(Locations Correct: 4) before the end of 12 turns. Good luck!'
+(Locations Correct: 4) before the end of 12 turns.'
     puts ''
-    puts 'Are you ready to play? (Enter y to continue or any other key to quit)'
+    puts 'You also have the option of creating a code and having the computer
+try to break it.'
+    puts ''
+    puts 'Press 1 if you would like to be the code BREAKER. Press 2 if you
+would like to be the code MAKER.'
     go = gets.chomp
-    if go == 'y'
+    if go == '1'
       puts 'Good luck!'
       generate_code
-    else
-      'Error. Please try again.'
+    elsif go == '2'
+      @human = false
+      puts ''
+      puts 'Please enter your 4 digit code you would like the computer to
+break.'
+      num = gets.chomp
+      if num.length == 4
+        num = num.split('')
+        @code = num.map(&:to_i)
+        computer_guess([1, 1, 2, 2])
+      else
+        puts 'Improper number of digits, please try again.'
+      end
     end
   end
 end
 
 game = Board.new
-# game.play_game
-# game.generate_code
-game.computer_guess([1, 1, 2, 2])
-# game.check([4,1,2,1])
+game.play_game

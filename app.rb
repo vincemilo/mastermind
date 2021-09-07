@@ -10,6 +10,8 @@ class Board
     @human = true
   end
 
+  protected
+
   def generate_code
     i = 4
     while i.positive?
@@ -149,6 +151,8 @@ class Board
     end
     n
   end
+
+  public
 
   def play_game
     puts 'Welcome to Mastermind!'

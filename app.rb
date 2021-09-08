@@ -35,9 +35,7 @@ class Board
       match(guess)
     end
     @guesses += 1
-    if @guesses >= 12 || @set.empty?
-      return
-    end
+    return if guesses >= 12
 
     new_guess(guess)
   end
@@ -76,9 +74,7 @@ class Board
     i = @set.length - 1
     while i >= 0
       conv = @set[i].to_s.split('')
-      if conv.any?(num)
-        @set.delete_at(i)
-      end
+      @set.delete_at(i) if conv.any?(num)
       i -= 1
     end
   end
@@ -189,13 +185,16 @@ would like to be the code MAKER.'
       puts ''
       puts 'Please enter your 4 digit code you would like the computer to
 break.'
-      num = gets.chomp
-      if num.length == 4
-        num = num.split('')
-        @code = num.map(&:to_i)
-        computer_guess([1, 1, 2, 2])
-      else
-        puts 'Improper number of digits, please try again.'
+      keep_going = true
+      while keep_going == true
+        num = gets.chomp.split('').map(&:to_i)
+        if num.length != 4 || num.any? { |e| e < 1 || e > 6 }
+          puts 'Code must be 4 digits long using numbers 1-6, please try again.'
+        else
+          keep_going = false
+          @code = num
+          computer_guess([1, 1, 2, 2])
+        end
       end
     end
   end
